@@ -1,0 +1,857 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset=utf8>
+  <meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <style>
+    :root {
+      color-scheme: light;
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px)
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font: 14px -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fff;
+      color: #000
+    }
+
+    img {
+      max-width: 100%
+    }
+
+    [hidden]:not([hidden=until-found i]) {
+      display: none !important
+    }
+  </style>
+</head>
+
+<body>
+  <title>Surge Member Records</title>
+  <meta name="claude:viewport-fit-sides" content="cover">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+  <style>
+    /* Layout: one working column for the owner. Count and breakdown first, then the paste box for new registrations, then the searchable member table. Same electric-blue and amber identity as the member card page, single dark look by choice. */
+    :root {
+      --ink: #070b1a;
+      --panel: #0d1430;
+      --raise: #121b40;
+      --line: #27336a;
+      --fg: #eef1ff;
+      --muted: #a3aedb;
+      --arc: #3d56f0;
+      --arc-lite: #8da0ff;
+      --amber: #ffb627;
+      --err: #ff9a9a;
+      --ok: #7be0a6;
+      --display: "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
+      --body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+      color-scheme: dark;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--ink);
+    }
+
+    body {
+      margin: 0;
+      background: var(--ink);
+      color: var(--fg);
+      font: 16px/1.55 var(--body);
+      padding-block: 32px 64px;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin-inline: auto;
+      display: grid;
+      gap: 36px;
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 10px;
+      font: 700 12px/1 var(--mono);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--arc-lite);
+    }
+
+    .kicker svg {
+      width: 14px;
+      height: 20px;
+      fill: var(--amber);
+      flex: none;
+    }
+
+    h1 {
+      margin: 0;
+      font: 800 clamp(40px, 7vw, 64px)/.95 var(--display);
+      text-transform: uppercase;
+      letter-spacing: .01em;
+    }
+
+    h2 {
+      margin: 0;
+      font: 800 28px/1 var(--display);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 32px 48px;
+      align-items: end;
+    }
+
+    @media (max-width: 760px) {
+      .head {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .total {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .num {
+      margin: 0;
+      font: 800 clamp(88px, 16vw, 150px)/.8 var(--display);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .numlabel {
+      margin: 0;
+      font: 700 13px/1.3 var(--mono);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .mini {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .mini div {
+      display: grid;
+      gap: 2px;
+    }
+
+    .mini b {
+      font: 800 40px/1 var(--display);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mini span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .goals {
+      display: grid;
+      gap: 8px;
+    }
+
+    .goal {
+      display: grid;
+      grid-template-columns: minmax(0, 150px) minmax(0, 1fr) 28px;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .goal .bar {
+      height: 8px;
+      background: var(--panel);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .goal .bar i {
+      display: block;
+      height: 100%;
+      background: var(--arc);
+      border-radius: 4px;
+    }
+
+    .goal .n {
+      font: 700 13px var(--mono);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .goal .nm {
+      overflow-wrap: anywhere;
+      color: var(--muted);
+    }
+
+    .banner {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .banner.bad {
+      border-color: #7a3b44;
+      color: var(--err);
+    }
+
+    .panel {
+      display: grid;
+      gap: 14px;
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .hint {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    textarea,
+    input[type=search] {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--ink);
+      color: var(--fg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font: inherit;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      font: 500 14px/1.5 var(--mono);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6f7cb3;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--arc-lite);
+      outline-offset: 2px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .msg {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .msg.ok {
+      color: var(--ok);
+    }
+
+    .msg.bad {
+      color: var(--err);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 20px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      font: 800 19px/1 var(--display);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .btn-solid {
+      background: var(--arc);
+      color: #fff;
+    }
+
+    .btn-solid:hover {
+      background: #5066ff;
+    }
+
+    .btn-solid:disabled {
+      opacity: .55;
+      cursor: default;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--fg);
+      border-color: var(--line);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--arc-lite);
+    }
+
+    .btn-ghost:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .tools {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      flex: 1 1 320px;
+      justify-content: flex-end;
+    }
+
+    .tools input[type=search] {
+      max-width: 320px;
+      min-height: 46px;
+      padding-block: 8px;
+    }
+
+    .tablewrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      background: var(--panel);
+      font: 700 11px/1.2 var(--mono);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--arc-lite);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    td.name {
+      font-weight: 600;
+      min-width: 140px;
+    }
+
+    td.id {
+      font: 700 13px var(--mono);
+      color: var(--amber);
+      white-space: nowrap;
+    }
+
+    td.date,
+    td.phone {
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.phone a {
+      color: var(--fg);
+      text-decoration: underline;
+      text-decoration-color: var(--line);
+      text-underline-offset: 3px;
+    }
+
+    td.phone a:hover {
+      text-decoration-color: var(--arc-lite);
+    }
+
+    td.health {
+      min-width: 180px;
+      max-width: 280px;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+    }
+
+    td.health.flag {
+      color: var(--fg);
+    }
+
+    td.health.flag::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+
+    td.act {
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .link {
+      background: none;
+      border: 0;
+      padding: 4px 6px;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .link:hover {
+      color: var(--fg);
+    }
+
+    .link.danger {
+      color: var(--err);
+    }
+
+    .empty {
+      padding: 28px 22px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .empty p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 60ch;
+    }
+
+    .empty pre {
+      margin: 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      background: var(--panel);
+      border-radius: 10px;
+      font: 500 13px/1.6 var(--mono);
+      color: var(--fg);
+    }
+
+    .fine {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 70ch;
+    }
+  </style>
+
+  <div class="wrap">
+    <header class="head">
+      <div>
+        <p class="kicker">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <polygon points="62,0 15,58 45,58 32,100 88,38 55,38 75,0" />
+          </svg>
+          Surge records
+        </p>
+        <h1>Member records</h1>
+        <div class="total">
+          <p class="num" id="total">0</p>
+          <p class="numlabel">members<br>registered</p>
+        </div>
+      </div>
+      <div>
+        <div class="mini">
+          <div><b id="weekN">0</b><span>added in the last 7 days</span></div>
+          <div><b id="healthN">0</b><span>with injury or health notes</span></div>
+        </div>
+        <div class="goals" id="goals" aria-label="Members by training goal"></div>
+      </div>
+    </header>
+
+    <p class="banner" id="banner" role="status">Loading records…</p>
+
+    <section class="panel" aria-labelledby="addH">
+      <h2 id="addH">Add registrations</h2>
+      <p class="hint">Paste the WhatsApp messages members send you, one or many at once. Each registration needs its
+        Member ID line. People already in your records are skipped.</p>
+      <textarea id="paste" spellcheck="false"
+        placeholder="Hi Surge! I just registered.&#10;Name: Rahul Sharma&#10;Member ID: SRG-26-K7M4-Q2XH&#10;WhatsApp: 9876543210&#10;Goal: Strength&#10;Level: Beginner&#10;Injuries or health notes: None"></textarea>
+      <div class="row">
+        <button class="btn btn-solid" type="button" id="addBtn" disabled>Add to records</button>
+        <p class="msg" id="addMsg" role="status"></p>
+      </div>
+    </section>
+
+    <section aria-labelledby="listH">
+      <div class="toolbar">
+        <h2 id="listH">Member list</h2>
+        <div class="tools">
+          <input type="search" id="search" placeholder="Search name, ID, number or goal" aria-label="Search members">
+          <button class="btn btn-ghost" type="button" id="csvBtn" hidden>Download CSV</button>
+        </div>
+      </div>
+      <div class="tablewrap" id="tableWrap" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th>Issued</th>
+              <th>Name</th>
+              <th>Member ID</th>
+              <th>WhatsApp</th>
+              <th>Goal</th>
+              <th>Level</th>
+              <th>Health notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="empty">
+        <p id="emptyText">No members yet. When someone registers, they send you a WhatsApp message like the one below.
+          Paste it above and they appear here.</p>
+        <pre>Hi Surge! I just registered.
+Name: Rahul Sharma
+Member ID: SRG-26-K7M4-Q2XH
+WhatsApp: 9876543210
+Goal: Strength
+Level: Beginner
+Issued: 15 NOV 2026
+Injuries or health notes: None</pre>
+      </div>
+    </section>
+
+    <p class="fine">This page is private to you. Records include phone numbers and health notes, so anyone you share the
+      page with can read them.</p>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var $ = function (id) { return document.getElementById(id); };
+      var db = null, downloads = null;
+      var records = [], loaded = false, pendingRemove = null, query = '';
+      var NONE = /^(none|no|nil|nothing|n\/a|na|nope|-|—)\.?$/i;
+
+      /* parse:start */
+      function parseMessages(text) {
+        var recs = [], cur = null, last = null, i;
+        var FIELD = /^(name|member id|whatsapp|goal|level|issued|injuries or health notes)\s*:\s*(.*)$/i;
+        var STAMP = /^\s*\[?\d{1,2}[\/.]\d{1,2}[\/.]\d{2,4},?\s+\d{1,2}:\d{2}(?::\d{2})?\s*(?:[ap]\.?m\.?)?\]?\s*[-–]?\s*[^:]{1,40}:\s*/i;
+        var KEYS = { 'name': 'name', 'member id': 'id', 'whatsapp': 'phone', 'goal': 'goal', 'level': 'level', 'issued': 'issued', 'injuries or health notes': 'health' };
+        var lines = String(text || '').split(/\r?\n/);
+        function flush() { if (cur) recs.push(cur); cur = null; last = null; }
+        for (i = 0; i < lines.length; i++) {
+          var line = lines[i], fresh = false;
+          if (STAMP.test(line)) { line = line.replace(STAMP, ''); fresh = true; }
+          line = line.trim();
+          if (fresh) last = null;
+          if (!line) { last = null; continue; }
+          var m = FIELD.exec(line);
+          if (m) {
+            var key = KEYS[m[1].toLowerCase()];
+            if (key === 'name') { flush(); cur = {}; }
+            if (!cur) cur = {};
+            cur[key] = m[2].trim();
+            last = key;
+            continue;
+          }
+          if (/just registered/i.test(line)) { flush(); continue; }
+          if (cur && last === 'health') cur.health = (cur.health + ' ' + line).trim();
+        }
+        flush();
+        var out = [], seen = {}, skipped = 0;
+        recs.forEach(function (r) {
+          var id = String(r.id || '').toUpperCase().replace(/\s+/g, '');
+          if (!/^[A-Z]{2,5}-\d{2}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(id)) { skipped++; return; }
+          if (seen[id]) return;
+          seen[id] = 1;
+          var phone = String(r.phone || '').replace(/\D/g, '');
+          if (phone.length === 12 && phone.indexOf('91') === 0) phone = phone.slice(2);
+          var t = Date.parse(r.issued || '');
+          out.push({
+            id: id,
+            name: String(r.name || '').slice(0, 60),
+            phone: phone,
+            goal: String(r.goal || '').slice(0, 40),
+            level: String(r.level || '').slice(0, 40),
+            health: String(r.health || '').slice(0, 300),
+            issuedAt: isNaN(t) ? null : t
+          });
+        });
+        return { records: out, skipped: skipped };
+      }
+      /* parse:end */
+
+      function fmtDate(ms) {
+        try { return new Date(ms).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (e) { return ''; }
+      }
+      function hasHealth(r) { var h = (r.health || '').trim(); return !!h && !NONE.test(h); }
+      function sortedRecords() {
+        return records.slice().sort(function (a, b) { return (b.issuedAt || b.addedAt || 0) - (a.issuedAt || a.addedAt || 0); });
+      }
+      function el(tag, cls, text) {
+        var n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+      }
+
+      function renderStats() {
+        var weekAgo = Date.now() - 7 * 86400000, week = 0, health = 0, byGoal = {};
+        records.forEach(function (r) {
+          if ((r.addedAt || 0) >= weekAgo) week++;
+          if (hasHealth(r)) health++;
+          var g = r.goal || 'No goal given';
+          byGoal[g] = (byGoal[g] || 0) + 1;
+        });
+        $('total').textContent = String(records.length);
+        $('weekN').textContent = String(week);
+        $('healthN').textContent = String(health);
+        var box = $('goals');
+        box.textContent = '';
+        var keys = Object.keys(byGoal).sort(function (a, b) { return byGoal[b] - byGoal[a]; });
+        var max = keys.length ? byGoal[keys[0]] : 1;
+        keys.forEach(function (k) {
+          var row = el('div', 'goal');
+          row.appendChild(el('span', 'nm', k));
+          var bar = el('span', 'bar'), fill = el('i');
+          fill.style.width = Math.max(6, Math.round(byGoal[k] / max * 100)) + '%';
+          bar.appendChild(fill);
+          row.appendChild(bar);
+          row.appendChild(el('span', 'n', String(byGoal[k])));
+          box.appendChild(row);
+        });
+      }
+
+      function renderTable() {
+        var q = query.trim().toLowerCase();
+        var list = sortedRecords().filter(function (r) {
+          if (!q) return true;
+          return [r.name, r.id, r.phone, r.goal, r.level].join(' ').toLowerCase().indexOf(q) !== -1;
+        });
+        var body = $('rows');
+        body.textContent = '';
+        list.forEach(function (r) {
+          var tr = document.createElement('tr');
+          tr.appendChild(el('td', 'date', fmtDate(r.issuedAt || r.addedAt)));
+          tr.appendChild(el('td', 'name', r.name || '—'));
+          tr.appendChild(el('td', 'id', r.id));
+          var tp = el('td', 'phone');
+          if (r.phone) {
+            var a = el('a', null, r.phone);
+            a.href = 'https://wa.me/' + (r.phone.length === 10 ? '91' : '') + r.phone;
+            a.target = '_blank'; a.rel = 'noopener';
+            tp.appendChild(a);
+          } else { tp.textContent = '—'; }
+          tr.appendChild(tp);
+          tr.appendChild(el('td', null, r.goal || '—'));
+          tr.appendChild(el('td', null, r.level || '—'));
+          tr.appendChild(el('td', 'health' + (hasHealth(r) ? ' flag' : ''), r.health || 'None'));
+          var act = el('td', 'act');
+          if (pendingRemove === r.id) {
+            act.appendChild(el('span', null, 'Remove? '));
+            var yes = el('button', 'link danger', 'Yes'); yes.type = 'button';
+            yes.addEventListener('click', function () { removeRecord(r.id); });
+            var no = el('button', 'link', 'Cancel'); no.type = 'button';
+            no.addEventListener('click', function () { pendingRemove = null; renderTable(); });
+            act.appendChild(yes); act.appendChild(no);
+          } else {
+            var rm = el('button', 'link', 'Remove'); rm.type = 'button';
+            rm.setAttribute('aria-label', 'Remove ' + (r.name || r.id));
+            rm.addEventListener('click', function () { pendingRemove = r.id; renderTable(); });
+            act.appendChild(rm);
+          }
+          tr.appendChild(act);
+          body.appendChild(tr);
+        });
+        var any = records.length > 0;
+        $('tableWrap').hidden = !list.length;
+        $('empty').hidden = list.length > 0;
+        $('csvBtn').hidden = !(any && downloads);
+        if (!list.length) {
+          $('emptyText').textContent = any
+            ? 'No members match that search.'
+            : 'No members yet. When someone registers, they send you a WhatsApp message like the one below. Paste it above and they appear here.';
+        }
+      }
+
+      function render() { renderStats(); renderTable(); }
+
+      function setBanner(text, bad) {
+        var b = $('banner');
+        b.textContent = text || '';
+        b.hidden = !text;
+        b.className = 'banner' + (bad ? ' bad' : '');
+      }
+      function setMsg(text, kind) {
+        var m = $('addMsg');
+        m.textContent = text || '';
+        m.className = 'msg' + (kind ? ' ' + kind : '');
+      }
+
+      async function removeRecord(id) {
+        pendingRemove = null;
+        try { await db.doc('members/' + id).delete(); setMsg('Removed ' + id + '.', 'ok'); }
+        catch (e) { setMsg('Could not remove that member. Try again.', 'bad'); }
+        renderTable();
+      }
+
+      async function addFromPaste() {
+        var text = $('paste').value;
+        if (!db) return;
+        var res = parseMessages(text);
+        if (!res.records.length) {
+          setMsg(res.skipped
+            ? 'No Member ID found in what you pasted. Each registration needs a line like Member ID: SRG-26-K7M4-Q2XH.'
+            : 'Nothing to add yet. Paste at least one registration message.', 'bad');
+          return;
+        }
+        var have = {};
+        records.forEach(function (r) { have[r.id] = 1; });
+        var added = 0, dups = 0, failed = 0, full = false;
+        $('addBtn').disabled = true;
+        for (var i = 0; i < res.records.length; i++) {
+          var r = res.records[i];
+          if (have[r.id]) { dups++; continue; }
+          try {
+            await db.doc('members/' + r.id).set({
+              name: r.name, phone: r.phone, goal: r.goal, level: r.level, health: r.health,
+              issuedAt: r.issuedAt, addedAt: Date.now()
+            });
+            have[r.id] = 1; added++;
+          } catch (e) {
+            failed++;
+            if (e && e.code === 'quota_exceeded') full = true;
+          }
+        }
+        $('addBtn').disabled = !$('paste').value.trim();
+        var parts = [];
+        parts.push('Added ' + added + (added === 1 ? ' member' : ' members') + '.');
+        if (dups) parts.push(dups + ' already in your records.');
+        if (res.skipped) parts.push(res.skipped + ' without a Member ID skipped.');
+        if (failed) parts.push(failed + ' could not be saved' + (full ? ' because the storage limit is full.' : '. Try again.'));
+        setMsg(parts.join(' '), failed ? 'bad' : (added ? 'ok' : ''));
+        if (!failed) $('paste').value = '';
+        $('addBtn').disabled = true;
+      }
+
+      function csvCell(v) {
+        v = String(v == null ? '' : v);
+        if (/^[=+\-@]/.test(v)) v = "'" + v;
+        return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+      }
+      function isoDay(ms) { try { return new Date(ms).toISOString().slice(0, 10); } catch (e) { return ''; } }
+      function exportCsv() {
+        if (!downloads || !records.length) return;
+        var rows = [['Issued', 'Name', 'Member ID', 'WhatsApp', 'Goal', 'Level', 'Health notes', 'Added to records']];
+        sortedRecords().forEach(function (r) {
+          rows.push([isoDay(r.issuedAt || r.addedAt), r.name, r.id, r.phone, r.goal, r.level, r.health, isoDay(r.addedAt)]);
+        });
+        var csv = '﻿' + rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
+        downloads.save({ filename: 'surge-members-' + isoDay(Date.now()) + '.csv', data: csv })
+          .then(function () { setMsg('CSV saved.', 'ok'); })
+          .catch(function (e) {
+            if (e && e.code === 'declined') setMsg('Download cancelled.', '');
+            else setMsg('Downloading is not available in this view.', 'bad');
+          });
+      }
+
+      $('paste').addEventListener('input', function () { $('addBtn').disabled = !db || !this.value.trim(); });
+      $('addBtn').addEventListener('click', addFromPaste);
+      $('search').addEventListener('input', function () { query = this.value; renderTable(); });
+      $('csvBtn').addEventListener('click', exportCsv);
+
+      render();
+
+      function startDb() {
+        var timer = setTimeout(function () {
+          if (!loaded) setBanner('Records cannot be reached yet. Whatever shows may be out of date.', true);
+        }, 10000);
+        db.collection('members').onSnapshot(function (snap) {
+          records = snap.docs.map(function (d) {
+            var v = d.data() || {};
+            return { id: d.id, name: v.name || '', phone: v.phone || '', goal: v.goal || '', level: v.level || '', health: v.health || '', issuedAt: v.issuedAt || null, addedAt: v.addedAt || 0 };
+          });
+          if (!snap.metadata.fromCache) { loaded = true; clearTimeout(timer); setBanner(''); }
+          else if (!loaded) setBanner('Loading records…');
+          $('addBtn').disabled = !$('paste').value.trim();
+          render();
+        }, function () {
+          clearTimeout(timer);
+          setBanner('Records could not be loaded. Open this page signed in to claude.ai as its owner.', true);
+        });
+      }
+
+      try {
+        if (window.claude && window.claude.use) {
+          window.claude.use('downloads').then(function (d) { downloads = d; renderTable(); }).catch(function () { });
+          window.claude.use('db').then(function (d) {
+            if (!d) { setBanner('Records are not available in this view. Open this page signed in to claude.ai as its owner.', true); return; }
+            db = d; startDb();
+          }).catch(function () { setBanner('Records are not available in this view.', true); });
+        } else {
+          setBanner('Records are not available in this view. Open this page from your claude.ai account.', true);
+        }
+      } catch (e) { setBanner('Records are not available in this view.', true); }
+    })();
+  </script>
+
+</body>
+
+</html>
