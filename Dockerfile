@@ -1,8 +1,13 @@
 # Stage 1: Build Frontend
-FROM node:20-alpine AS frontend-builder
+FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
-COPY frontend/package.json ./
+
+# Ensure adequate stack size for Rollup AST parsing
+ENV NODE_OPTIONS="--stack-size=4096"
+
+COPY frontend/package*.json ./
 RUN npm install
+
 COPY frontend ./
 RUN npm run build
 
@@ -18,7 +23,7 @@ ENV PORT=8000
 COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Copy source code and built frontend
+# Copy backend code and compiled frontend dist
 COPY backend ./backend
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
